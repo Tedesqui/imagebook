@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬</title>
+    <title>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬 𝐚 𝐩𝐚𝐫𝐭𝐢𝐫 𝐝𝐞 𝐓𝐞𝐱𝐭𝐨 𝐝𝐞 𝐋𝐢𝐯𝐫𝐨𝐬</title>
     <style>
         :root {
             --openai-green: #74aa9c;
@@ -70,21 +70,21 @@
         button:active { transform: scale(0.98); }
         button:disabled { background-color: #2a2a2a; color: #777; cursor: not-allowed; }
 
-        #previewControls { display: none; }
+        #previewControls, #textConfirmationContainer { display: none; }
         
-        #textConfirmationContainer {
-            display: none;
-            width: 100%;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
+        /* Estilos para o Checkbox de Consistência */
         .consistency-wrapper {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            width: 90%;
+            gap: 10px;
+            padding: 10px;
+            background-color: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: var(--border-radius);
             cursor: pointer;
+            margin-top: 5px;
         }
 
         .consistency-wrapper label {
@@ -94,17 +94,12 @@
         }
 
         .consistency-wrapper input[type="checkbox"] {
-            transform: scale(1.2);
+            transform: scale(1.3);
             cursor: pointer;
-        }
-
-        #textConfirmationContainer #generateImageBtn {
-            width: 90%;
         }
         
         #ocrResultText {
             width: 90%;
-            max-width: 450px;
             box-sizing: border-box;
             height: 100px;
             background-color: var(--card-bg);
@@ -131,7 +126,7 @@
 <body>
 
     <div class="container">
-        <h2>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬</h2>
+        <h2>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬 𝐚 𝐩𝐚𝐫𝐭𝐢𝐫 𝐝𝐞 𝐓𝐞𝐱𝐭𝐨 𝐝𝐞 𝐋𝐢𝐯𝐫𝐨𝐬</h2>
 
         <div id="camera-container">
             <video id="camera" autoplay playsinline muted></video>
@@ -142,19 +137,20 @@
             <button id="zoomBtn">🔍 Zoom 1x</button>
             <button id="takePhotoBtn">📷 Tirar Foto</button>
         </div>
+        
+        <div class="consistency-wrapper" onclick="document.getElementById('maintainConsistency').click();">
+            <input type="checkbox" id="maintainConsistency">
+            <label for="maintainConsistency">Manter Consistência</label>
+        </div>
 
         <div id="previewControls" class="controls">
             <button id="retryBtn">🔄 Tentar Novamente</button>
             <button id="analyzeBtn">✅ Ler Texto da Foto</button>
         </div>
         
-        <div id="textConfirmationContainer">
+        <div id="textConfirmationContainer" class="controls" style="flex-direction: column;">
             <textarea id="ocrResultText"></textarea>
-            <div class="consistency-wrapper" onclick="document.getElementById('maintainConsistency').click();">
-                <input type="checkbox" id="maintainConsistency">
-                <label for="maintainConsistency">Manter Consistência</label>
-            </div>
-            <button id="generateImageBtn">🎨 Gerar Imagem</button>
+            <button id="generateImageBtn" style="width: 100%; margin-top: 10px;">🎨 Gerar Imagem</button>
         </div>
         
         <p id="status">Aponte a câmera para um texto.</p>
@@ -179,6 +175,7 @@
                 initialControls: document.getElementById('initialControls'),
                 previewControls: document.getElementById('previewControls'),
                 textConfirmation: document.getElementById('textConfirmationContainer'),
+                consistencyWrapper: document.querySelector('.consistency-wrapper')
             }
         };
 
@@ -223,25 +220,33 @@
             ui.snapshot.height = ui.camera.videoHeight;
             ui.snapshot.getContext('2d').drawImage(ui.camera, 0, 0, ui.snapshot.width, ui.snapshot.height);
             
+            // Esconde os controles iniciais e o checkbox
             ui.snapshot.style.display = 'block';
             ui.camera.style.display = 'none';
             ui.containers.initialControls.style.display = 'none';
+            ui.containers.consistencyWrapper.style.display = 'none';
+            
+            // Mostra os controles de pré-visualização
             ui.containers.previewControls.style.display = 'flex';
             ui.status.textContent = "Foto capturada. Deseja ler o texto?";
         }
 
         function resetPhoto() {
+            // Mostra os controles iniciais e o checkbox novamente
             ui.camera.style.display = 'block';
             ui.snapshot.style.display = 'none';
-            ui.containers.previewControls.style.display = 'none';
             ui.containers.initialControls.style.display = 'flex';
+            ui.containers.consistencyWrapper.style.display = 'flex';
+
+            // Esconde os outros contêineres
+            ui.containers.previewControls.style.display = 'none';
             ui.containers.textConfirmation.style.display = 'none';
+            
             ui.status.textContent = "Câmera pronta. Aponte para um texto.";
             ui.imageContainer.innerHTML = '';
         }
 
         async function analyzePhoto() {
-            console.log("Iniciando a análise da foto...");
             ui.buttons.analyze.disabled = true;
             ui.buttons.retry.disabled = true;
             ui.status.textContent = "🧠 Lendo o texto, por favor aguarde...";
@@ -254,29 +259,22 @@
                     body: JSON.stringify({ imageBase64 })
                 });
 
-                console.log("Resposta da API recebida. Status:", response.status);
-
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({ error: "Erro desconhecido ao ler resposta." }));
-                    const errorMessage = errorData.error || `Erro HTTP ${response.status}`;
-                    throw new Error(errorMessage);
+                    throw new Error(errorData.error || `Erro HTTP ${response.status}`);
                 }
 
                 const data = await response.json();
-
-                if (typeof data.text !== 'string') {
-                    throw new Error("A resposta da API não contém um texto válido.");
-                }
-
-                console.log("Análise concluída com sucesso. Exibindo resultados.");
-
                 ui.ocrResultText.value = data.text;
+
+                // Mostra o contêiner de confirmação e o checkbox novamente
                 ui.containers.previewControls.style.display = 'none';
                 ui.containers.textConfirmation.style.display = 'flex';
+                ui.containers.consistencyWrapper.style.display = 'flex';
+                
                 ui.status.textContent = "Texto lido. Confirme ou edite e gere a imagem.";
 
             } catch (error) {
-                console.error("Ocorreu um erro detalhado em analyzePhoto:", error);
                 ui.status.innerHTML = `❌<strong style="color: #ff9999;"> Falha ao ler o texto.</strong><br><small>Detalhe: ${error.message}</small>`;
             } finally {
                 ui.buttons.analyze.disabled = false;
@@ -309,9 +307,8 @@
                 });
                 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ error: "Erro desconhecido ao ler resposta." }));
-                    const errorMessage = errorData.error || `Erro HTTP ${response.status}`;
-                    throw new Error(errorMessage);
+                    const errorData = await response.json().catch(() => ({ error: "Erro desconhecido" }));
+                    throw new Error(errorData.error || `Erro HTTP ${response.status}`);
                 }
                 
                 const data = await response.json();
