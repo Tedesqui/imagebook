@@ -72,17 +72,13 @@
 
         #previewControls, #textConfirmationContainer { display: none; }
         
-        /* Estilos para o Checkbox de Consistência */
+        /* Estilos corrigidos para o Checkbox não parecer um botão */
         .consistency-wrapper {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* Centraliza o conteúdo */
             width: 90%;
             gap: 10px;
-            padding: 10px;
-            background-color: var(--card-bg);
-            border: 1px solid #333;
-            border-radius: var(--border-radius);
             cursor: pointer;
             margin-top: 5px;
         }
@@ -220,25 +216,19 @@
             ui.snapshot.height = ui.camera.videoHeight;
             ui.snapshot.getContext('2d').drawImage(ui.camera, 0, 0, ui.snapshot.width, ui.snapshot.height);
             
-            // Esconde os controles iniciais e o checkbox
             ui.snapshot.style.display = 'block';
             ui.camera.style.display = 'none';
             ui.containers.initialControls.style.display = 'none';
-            ui.containers.consistencyWrapper.style.display = 'none';
-            
-            // Mostra os controles de pré-visualização
             ui.containers.previewControls.style.display = 'flex';
+            
+            // O checkbox permanece visível
             ui.status.textContent = "Foto capturada. Deseja ler o texto?";
         }
 
         function resetPhoto() {
-            // Mostra os controles iniciais e o checkbox novamente
             ui.camera.style.display = 'block';
             ui.snapshot.style.display = 'none';
             ui.containers.initialControls.style.display = 'flex';
-            ui.containers.consistencyWrapper.style.display = 'flex';
-
-            // Esconde os outros contêineres
             ui.containers.previewControls.style.display = 'none';
             ui.containers.textConfirmation.style.display = 'none';
             
@@ -260,17 +250,15 @@
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ error: "Erro desconhecido ao ler resposta." }));
+                    const errorData = await response.json().catch(() => ({ error: "Erro desconhecido" }));
                     throw new Error(errorData.error || `Erro HTTP ${response.status}`);
                 }
 
                 const data = await response.json();
                 ui.ocrResultText.value = data.text;
 
-                // Mostra o contêiner de confirmação e o checkbox novamente
                 ui.containers.previewControls.style.display = 'none';
                 ui.containers.textConfirmation.style.display = 'flex';
-                ui.containers.consistencyWrapper.style.display = 'flex';
                 
                 ui.status.textContent = "Texto lido. Confirme ou edite e gere a imagem.";
 
