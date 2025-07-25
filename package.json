@@ -1,0 +1,28 @@
+{
+    "name": "imagebook-vercel",
+    "version": "1.0.0",
+    "description": "Um aplicativo que extrai texto de fotos de livros e gera imagens com IA.",
+    "main": "api/server.js",
+    "type": "module",
+    "scripts": {
+        "start": "node api/server.js"
+    },
+    "keywords": [
+        "openai",
+        "dall-e",
+        "aws",
+        "textract",
+        "ocr",
+        "vercel",
+        "ia"
+    ],
+    "author": "Jean Tedesqui",
+    "license": "ISC",
+    "dependencies": {
+        "@aws-sdk/client-textract": "^3.556.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^4.18.3",
+        "openai": "^4.29.2"
+    }
+}
