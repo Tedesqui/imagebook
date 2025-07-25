@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬 𝐚 𝐩𝐚𝐫𝐭𝐢𝐫 𝐝𝐞 𝐓𝐞𝐱𝐭𝐨 𝐝𝐞 𝐋𝐢𝐯𝐫𝐨𝐬</title>
+    <title>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬</title>
     <style>
         :root {
             --openai-green: #74aa9c;
@@ -72,14 +72,12 @@
 
         #previewControls, #textConfirmationContainer { display: none; }
         
-        /* Estilos corrigidos para o Checkbox não parecer um botão */
         .consistency-wrapper {
             display: flex;
             align-items: center;
-            justify-content: center; /* Centraliza o conteúdo */
+            justify-content: center;
             width: 90%;
             gap: 10px;
-            cursor: pointer;
             margin-top: 5px;
         }
 
@@ -122,7 +120,7 @@
 <body>
 
     <div class="container">
-        <h2>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬 𝐚 𝐩𝐚𝐫𝐭𝐢𝐫 𝐝𝐞 𝐓𝐞𝐱𝐭𝐨 𝐝𝐞 𝐋𝐢𝐯𝐫𝐨𝐬</h2>
+        <h2>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬</h2>
 
         <div id="camera-container">
             <video id="camera" autoplay playsinline muted></video>
@@ -134,7 +132,7 @@
             <button id="takePhotoBtn">📷 Tirar Foto</button>
         </div>
         
-        <div class="consistency-wrapper" onclick="document.getElementById('maintainConsistency').click();">
+        <div class="consistency-wrapper">
             <input type="checkbox" id="maintainConsistency">
             <label for="maintainConsistency">Manter Consistência</label>
         </div>
@@ -171,7 +169,6 @@
                 initialControls: document.getElementById('initialControls'),
                 previewControls: document.getElementById('previewControls'),
                 textConfirmation: document.getElementById('textConfirmationContainer'),
-                consistencyWrapper: document.querySelector('.consistency-wrapper')
             }
         };
 
@@ -221,7 +218,6 @@
             ui.containers.initialControls.style.display = 'none';
             ui.containers.previewControls.style.display = 'flex';
             
-            // O checkbox permanece visível
             ui.status.textContent = "Foto capturada. Deseja ler o texto?";
         }
 
