@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬 𝐚 𝐩𝐚𝐫𝐭𝐢𝐫 𝐝𝐞 𝐓𝐞𝐱𝐭𝐨 𝐝𝐞 𝐋𝐢𝐯𝐫𝐨𝐬</title>
+    <title>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬</title>
     <style>
         :root {
             --openai-green: #74aa9c;
@@ -28,7 +28,7 @@
             align-items: center; gap: 15px;
             font-size: 70%;
             margin-top: 40px;
-            margin-bottom: 40px; /* Adicionado para dar espaço no final */
+            margin-bottom: 40px;
         }
 
         h2 {
@@ -38,7 +38,7 @@
         #camera-container {
             width: 100%; background-color: var(--card-bg);
             border-radius: var(--border-radius); overflow: hidden;
-            position: relative; aspect-ratio: 4 / 4;
+            position: relative; aspect-ratio: 1 / 1;
             display: flex; align-items: center; justify-content: center;
             border: 1px solid #333;
         }
@@ -71,14 +71,13 @@
         button:disabled { background-color: #2a2a2a; color: #777; cursor: not-allowed; }
 
         #previewControls { display: none; }
-
-        /* Estilos corrigidos para o contêiner de confirmação e o checkbox */
+        
         #textConfirmationContainer {
-            display: none; /* Começa escondido */
+            display: none;
             width: 100%;
             flex-direction: column;
             align-items: center;
-            gap: 15px; /* Espaço entre o textarea, o checkbox e o botão */
+            gap: 15px;
         }
 
         .consistency-wrapper {
@@ -100,11 +99,15 @@
         }
 
         #textConfirmationContainer #generateImageBtn {
-            width: 90%; /* Faz o botão ter a mesma largura dos outros controles */
+            width: 90%;
         }
         
         #ocrResultText {
-            width: 90%; height: 100px; background-color: var(--card-bg);
+            width: 90%;
+            max-width: 450px;
+            box-sizing: border-box;
+            height: 100px;
+            background-color: var(--card-bg);
             border: 1px solid #444; color: var(--text-color);
             border-radius: var(--border-radius); padding: 10px;
             font-size: 16px;
@@ -113,6 +116,7 @@
         #status {
             text-align: center; min-height: 40px;
             color: #ccc; font-size: 1.3em;
+            line-height: 1.4;
         }
         
         #imageContainer {
@@ -122,14 +126,12 @@
         #imageContainer img {
             width: 100%; border-radius: var(--border-radius); border: 1px solid #333;
         }
-        
-        /* Classe .contact-info removida do CSS */
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬 𝐚 𝐩𝐚𝐫𝐭𝐢𝐫 𝐝𝐞 𝐓𝐞𝐱𝐭𝐨 𝐝𝐞 𝐋𝐢𝐯𝐫𝐨𝐬</h2>
+        <h2>𝐈𝐌𝐀𝐆𝐄𝐁𝐎𝐎𝐊 - 𝐈𝐀 𝐪𝐮𝐞 𝐠𝐞𝐫𝐚 𝐈𝐦𝐚𝐠𝐞𝐧𝐬</h2>
 
         <div id="camera-container">
             <video id="camera" autoplay playsinline muted></video>
@@ -157,8 +159,7 @@
         
         <p id="status">Aponte a câmera para um texto.</p>
         <div id="imageContainer"></div>
-        
-        </div>
+    </div>
 
     <script>
         const ui = {
@@ -234,15 +235,17 @@
             ui.snapshot.style.display = 'none';
             ui.containers.previewControls.style.display = 'none';
             ui.containers.initialControls.style.display = 'flex';
-            ui.containers.textConfirmation.style.display = 'none'; // Esconde de novo
+            ui.containers.textConfirmation.style.display = 'none';
             ui.status.textContent = "Câmera pronta. Aponte para um texto.";
             ui.imageContainer.innerHTML = '';
         }
 
         async function analyzePhoto() {
+            console.log("Iniciando a análise da foto...");
             ui.buttons.analyze.disabled = true;
             ui.buttons.retry.disabled = true;
-            ui.status.textContent = "🧠 Lendo o texto...";
+            ui.status.textContent = "🧠 Lendo o texto, por favor aguarde...";
+
             try {
                 const imageBase64 = ui.snapshot.toDataURL('image/png');
                 const response = await fetch('/api/ocr-aws', {
@@ -250,17 +253,31 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ imageBase64 })
                 });
+
+                console.log("Resposta da API recebida. Status:", response.status);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: "Erro desconhecido ao ler resposta." }));
+                    const errorMessage = errorData.error || `Erro HTTP ${response.status}`;
+                    throw new Error(errorMessage);
+                }
+
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || "Falha ao ler texto.");
-                
+
+                if (typeof data.text !== 'string') {
+                    throw new Error("A resposta da API não contém um texto válido.");
+                }
+
+                console.log("Análise concluída com sucesso. Exibindo resultados.");
+
                 ui.ocrResultText.value = data.text;
                 ui.containers.previewControls.style.display = 'none';
-                // CORREÇÃO: Altera o display para 'flex' para ativar os estilos corretos
-                ui.containers.textConfirmation.style.display = 'flex'; 
-                ui.status.textContent = "Confirme ou edite o texto lido.";
+                ui.containers.textConfirmation.style.display = 'flex';
+                ui.status.textContent = "Texto lido. Confirme ou edite e gere a imagem.";
 
             } catch (error) {
-                ui.status.textContent = `❌ Erro no OCR: ${error.message}`;
+                console.error("Ocorreu um erro detalhado em analyzePhoto:", error);
+                ui.status.innerHTML = `❌<strong style="color: #ff9999;"> Falha ao ler o texto.</strong><br><small>Detalhe: ${error.message}</small>`;
             } finally {
                 ui.buttons.analyze.disabled = false;
                 ui.buttons.retry.disabled = false;
@@ -290,8 +307,14 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: prompt })
                 });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: "Erro desconhecido ao ler resposta." }));
+                    const errorMessage = errorData.error || `Erro HTTP ${response.status}`;
+                    throw new Error(errorMessage);
+                }
+                
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || "Falha na geração da imagem.");
                 
                 if (data.imageURL) {
                     ui.imageContainer.innerHTML = `<img src="${data.imageURL}" alt="Imagem gerada a partir do texto">`;
@@ -301,7 +324,7 @@
                     throw new Error("Não foi possível obter o URL da imagem gerada.");
                 }
             } catch (error) {
-                ui.status.textContent = `❌ Erro na geração da imagem: ${error.message}`;
+                ui.status.innerHTML = `❌<strong style="color: #ff9999;"> Falha ao gerar imagem.</strong><br><small>Detalhe: ${error.message}</small>`;
             } finally {
                 ui.buttons.generateImage.disabled = false;
             }
